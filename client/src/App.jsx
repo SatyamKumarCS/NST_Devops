@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, Search, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
@@ -11,6 +12,38 @@ import Checkout from './pages/Checkout';
 const Navigation = () => {
   const { user, logout } = useAuth();
   const { getItemCount } = useCart();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Initialize search state from URL
+  const [searchQuery, setSearchQuery] = useState(new URLSearchParams(location.search).get('search') || '');
+
+  // Synchronize search state with URL changes (e.g., when the user clears the search)
+  useEffect(() => {
+    const searchParam = new URLSearchParams(location.search).get('search') || '';
+    setSearchQuery(searchParam);
+  }, [location.search]);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Update the URL as the user types
+    const params = new URLSearchParams(location.search);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    
+    // If we're not on the home page, redirect to home with the search query
+    if (location.pathname !== '/') {
+      navigate(`/?${params.toString()}`);
+    } else {
+      navigate(`?${params.toString()}`, { replace: true });
+    }
+  };
   
   return (
     <nav className="navbar">
@@ -23,16 +56,18 @@ const Navigation = () => {
         </Link>
 
         <div className="nav-links-center">
-          <Link to="/">Shop</Link>
-          <Link to="/">Categories</Link>
-          <Link to="/">Deals</Link>
-          <Link to="/">About</Link>
         </div>
 
         <div className="nav-actions">
           <div className="search-container">
             <Search size={18} style={{position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)'}} />
-            <input type="text" placeholder="Search products..." className="search-input" />
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              className="search-input" 
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
           </div>
           
           <div style={{display: 'flex', gap: '1.25rem', alignItems: 'center'}}>
@@ -50,15 +85,48 @@ const Navigation = () => {
               )}
             </Link>
 
-            <Link to="/admin" style={{color: 'var(--text-main)', display: 'flex'}}>
-              <UserIcon size={22} />
-            </Link>
-
-            {user && (
-              <button onClick={logout} style={{background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-main)', display: 'flex', alignItems: 'center'}}>
-                <LogOut size={22} />
+            <div style={{position: 'relative'}}>
+              <button 
+                onClick={() => setShowDropdown(!showDropdown)}
+                style={{background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex'}}
+              >
+                <UserIcon size={22} />
               </button>
-            )}
+
+              {showDropdown && (
+                <div className="profile-dropdown">
+                  {user ? (
+                    <>
+                      <div className="dropdown-user-info">
+                        <p className="dropdown-user-name">{user.name}</p>
+                        <p className="dropdown-user-email">{user.email}</p>
+                      </div>
+                      <div className="dropdown-links">
+                        <Link to="/admin" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                          <UserIcon size={18} /> Admin Dashboard
+                        </Link>
+                        <Link to="/checkout" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                          <ShoppingCart size={18} /> My Cart
+                        </Link>
+                        <button onClick={() => { logout(); setShowDropdown(false); }} className="dropdown-item" style={{background: 'none', border: 'none', width: '100%', cursor: 'pointer'}}>
+                          <LogOut size={18} /> Sign Out
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="guest-actions">
+                      <p style={{fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 600}}>Welcome to ShopSmart</p>
+                      <Link to="/login" className="dropdown-cta dropdown-cta-primary" onClick={() => setShowDropdown(false)}>
+                        Sign In
+                      </Link>
+                      <Link to="/register" className="dropdown-cta dropdown-cta-secondary" onClick={() => setShowDropdown(false)}>
+                        Create Account
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

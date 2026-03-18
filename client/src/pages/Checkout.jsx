@@ -2,14 +2,34 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Truck, Package, ArrowLeft, CreditCard } from 'lucide-react';
+import { CheckCircle, Truck, Package, ArrowLeft, CreditCard, Plus, Minus, Trash2, MapPin } from 'lucide-react';
 
 export default function Checkout() {
-  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isOrdered, setIsOrdered] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState(() => {
+    const savedAddress = localStorage.getItem('shippingAddress');
+    return savedAddress ? JSON.parse(savedAddress) : {
+      street: '',
+      city: '',
+      zipCode: '',
+      state: ''
+    };
+  });
+  const [addressSaved, setAddressSaved] = useState(() => {
+    return localStorage.getItem('addressSaved') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('shippingAddress', JSON.stringify(address));
+  }, [address]);
+
+  useEffect(() => {
+    localStorage.setItem('addressSaved', addressSaved.toString());
+  }, [addressSaved]);
 
   if (!user) return <div className="container" style={{paddingTop: '150px', textAlign: 'center', minHeight: '60vh'}}>
     <h2 style={{marginBottom: '1rem'}}>Access Denied</h2>
@@ -29,6 +49,15 @@ export default function Checkout() {
       </div>
     );
   }
+
+  const handleSaveAddress = () => {
+    if (address.street && address.city && address.state && address.zipCode) {
+      setAddressSaved(true);
+      setTimeout(() => setAddressSaved(false), 3000);
+    } else {
+      alert('Please fill in all address fields');
+    }
+  };
 
   const handlePlaceOrder = () => {
     setLoading(true);
@@ -74,7 +103,7 @@ export default function Checkout() {
             <h3 style={{fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 800}}>
               <Truck size={22} color="var(--primary)" /> SHIPPING DESTINATION
             </h3>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem'}}>
+            <div style={{display: 'grid', gridTemplateColumns: addressSaved ? '1fr 1fr 1fr' : '1fr 1fr', gap: '2rem'}}>
               <div>
                 <p style={{fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-dim)', marginBottom: '0.25rem'}}>CUSTOMER</p>
                 <p style={{fontWeight: 600}}>{user.name}</p>
@@ -85,6 +114,98 @@ export default function Checkout() {
                 <p style={{fontWeight: 600}}>Standard (3-5 Days)</p>
                 <p style={{color: 'var(--secondary)', fontSize: '0.8rem', fontWeight: 700}}>FREE DELIVERY</p>
               </div>
+              {addressSaved && (
+                <div>
+                  <p style={{fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-dim)', marginBottom: '0.25rem'}}>SHIP TO</p>
+                  <p style={{fontWeight: 600, fontSize: '0.9rem'}}>{address.street}</p>
+                  <p style={{color: 'var(--text-muted)', fontSize: '0.85rem'}}>{address.city}, {address.state} {address.zipCode}</p>
+                </div>
+              )}
+            </div>
+            
+            <div style={{marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-light)'}}>
+              <h4 style={{fontSize: '0.9rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700}}>
+                <MapPin size={18} color="var(--primary)" /> SHIPPING ADDRESS
+              </h4>
+              
+              {!addressSaved ? (
+                <>
+                  <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem'}}>
+                    <input 
+                      type="text" 
+                      placeholder="Street Address" 
+                      className="search-input" 
+                      style={{paddingLeft: '1rem'}}
+                      value={address.street}
+                      onChange={(e) => setAddress({...address, street: e.target.value})}
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="City" 
+                      className="search-input" 
+                      style={{paddingLeft: '1rem'}}
+                      value={address.city}
+                      onChange={(e) => setAddress({...address, city: e.target.value})}
+                    />
+                  </div>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                    <input 
+                      type="text" 
+                      placeholder="State/Province" 
+                      className="search-input" 
+                      style={{paddingLeft: '1rem'}}
+                      value={address.state}
+                      onChange={(e) => setAddress({...address, state: e.target.value})}
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Zip Code" 
+                      className="search-input" 
+                      style={{paddingLeft: '1rem'}}
+                      value={address.zipCode}
+                      onChange={(e) => setAddress({...address, zipCode: e.target.value})}
+                    />
+                  </div>
+                  <div style={{marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                    <button 
+                      onClick={handleSaveAddress}
+                      className="btn btn-secondary"
+                      style={{padding: '0.6rem 1.5rem', fontSize: '0.85rem'}}
+                    >
+                      Save Address
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  background: 'var(--bg-secondary)', 
+                  padding: '1.5rem', 
+                  borderRadius: 'var(--radius-sm)', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  border: '1px dashed var(--border-light)'
+                }}>
+                  <div>
+                    <p style={{fontWeight: 700, color: 'var(--text-main)'}}>{address.street}</p>
+                    <p style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>{address.city}, {address.state} {address.zipCode}</p>
+                  </div>
+                  <button 
+                    onClick={() => setAddressSaved(false)}
+                    style={{
+                      background: 'none', 
+                      border: 'none', 
+                      color: 'var(--primary)', 
+                      fontWeight: 700, 
+                      fontSize: '0.85rem', 
+                      cursor: 'pointer',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Edit Address
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -117,17 +238,43 @@ export default function Checkout() {
             <h3 style={{fontSize: '1.2rem', marginBottom: '2rem', fontWeight: 800}}>Order Summary</h3>
             <div style={{display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '2rem'}}>
               {cartItems.map(item => (
-                <div key={item.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div key={item.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                   <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
-                    <div style={{width: '40px', height: '40px', borderRadius: '6px', background: 'var(--bg-secondary)', overflow: 'hidden'}}>
+                    <div style={{width: '60px', height: '60px', borderRadius: '8px', background: 'var(--bg-secondary)', overflow: 'hidden'}}>
                       <img src={item.imageUrl} alt="" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
                     </div>
                     <div>
-                      <p style={{fontWeight: 700, fontSize: '0.9rem'}}>{item.name}</p>
-                      <p style={{fontSize: '0.8rem', color: 'var(--text-dim)'}}>Qty: {item.quantity}</p>
+                      <p style={{fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem'}}>{item.name}</p>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                        <div style={{display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '4px', padding: '2px'}}>
+                          <button 
+                            onClick={() => updateQuantity(item.id, -1)}
+                            style={{background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)'}}
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span style={{fontSize: '0.85rem', minWidth: '20px', textAlign: 'center', fontWeight: 700}}>{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, 1)}
+                            style={{background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)'}}
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                        <button 
+                          onClick={() => removeFromCart(item.id)}
+                          style={{background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', display: 'flex'}}
+                          title="Remove item"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <span style={{fontWeight: 600}}>${(item.price * item.quantity).toFixed(2)}</span>
+                  <div style={{textAlign: 'right'}}>
+                    <p style={{fontWeight: 800, color: 'var(--primary)'}}>${(item.price * item.quantity).toFixed(2)}</p>
+                    <p style={{fontSize: '0.75rem', color: 'var(--text-dim)'}}>${item.price} ea</p>
+                  </div>
                 </div>
               ))}
             </div>

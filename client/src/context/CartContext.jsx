@@ -1,18 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
-const CartContext = createContext();
+export const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+      return [];
     }
-  }, []);
+  });
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
@@ -46,11 +47,24 @@ export const CartProvider = ({ children }) => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  const updateQuantity = (productId, delta) => {
+    setCartItems((prevItems) => {
+      return prevItems.map((item) => {
+        if (item.id === productId) {
+          const newQuantity = Math.max(1, item.quantity + delta);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      });
+    });
+  };
+
   return (
     <CartContext.Provider value={{ 
       cartItems, 
       addToCart, 
       removeFromCart, 
+      updateQuantity,
       clearCart, 
       getCartTotal,
       getItemCount 

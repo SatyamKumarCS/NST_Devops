@@ -27,8 +27,8 @@ export default function Register() {
   };
 
   return (
-    <div style={{minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', padding: '2rem'}}>
-      <div className="glass-card" style={{width: '100%', maxWidth: '440px', padding: '3rem', backgroundColor: 'white', border: 'none', boxShadow: 'var(--shadow-lg)'}}>
+    <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', padding: '120px 2rem'}}>
+      <div className="glass-card" style={{width: '100%', maxWidth: '440px', padding: '4rem 3rem', backgroundColor: 'white', border: 'none', boxShadow: 'var(--shadow-lg)'}}>
         <div style={{textAlign: 'center', marginBottom: '2.5rem'}}>
           <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem'}}>Create account</h2>
           <p style={{color: 'var(--text-muted)'}}>Join 10k+ users in the future of shopping</p>

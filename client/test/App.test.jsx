@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import App from '../src/App';
 import { describe, it, expect, vi } from 'vitest';
 
 describe('App', () => {
@@ -12,7 +12,8 @@ describe('App', () => {
         );
 
         render(<App />);
-        const linkElement = screen.getByText(/ShopSmart/i);
-        expect(linkElement).toBeInTheDocument();
+        const elements = screen.getAllByText(/ShopSmart/i);
+        expect(elements.length).toBeGreaterThan(0);
+        expect(elements[0]).toBeInTheDocument();
     });
 });
