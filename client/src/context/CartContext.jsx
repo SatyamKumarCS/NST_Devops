@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { useNotification } from './NotificationContext';
 
 export const CartContext = createContext();
 
@@ -15,11 +17,19 @@ export const CartProvider = ({ children }) => {
     }
   });
 
+  const { user } = useAuth();
+  const { showNotification } = useNotification();
+
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = (product) => {
+    if (!user) {
+      showNotification('Please sign in to add items to your cart', 'warning');
+      return;
+    }
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -29,6 +39,7 @@ export const CartProvider = ({ children }) => {
       }
       return [...prevItems, { ...product, quantity: 1 }];
     });
+    showNotification(`${product.name} added to cart!`, 'success');
   };
 
   const removeFromCart = (productId) => {

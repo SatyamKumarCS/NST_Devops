@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation 
 import { ShoppingBag, Search, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
+import { NotificationProvider, useNotification } from './context/NotificationContext';
+import { XCircle, CheckCircle, Info as InfoIcon, AlertCircle, X } from 'lucide-react';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -134,13 +136,38 @@ const Navigation = () => {
   );
 };
 
+const Toast = () => {
+  const { notifications, removeNotification } = useNotification();
+
+  return (
+    <div className="toast-container">
+      {notifications.map((notification) => (
+        <div key={notification.id} className={`toast toast-${notification.type}`}>
+          <div className="toast-content">
+            {notification.type === 'error' && <XCircle size={18} />}
+            {notification.type === 'success' && <div style={{color: '#10b981'}}><CheckCircle size={18} /></div>}
+            {notification.type === 'info' && <div style={{color: 'var(--primary)'}}><InfoIcon size={18} /></div>}
+            {notification.type === 'warning' && <div style={{color: '#f59e0b'}}><AlertCircle size={18} /></div>}
+            <span>{notification.message}</span>
+          </div>
+          <button onClick={() => removeNotification(notification.id)} className="toast-close">
+            <X size={14} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <CartProvider>
-          <Navigation />
-          <main style={{backgroundColor: 'white', minHeight: '80vh'}} className="page-transition">
+      <NotificationProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Navigation />
+            <Toast />
+            <main style={{backgroundColor: 'white', minHeight: '80vh'}} className="page-transition">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
@@ -199,7 +226,8 @@ function App() {
           </footer>
         </CartProvider>
       </AuthProvider>
-    </Router>
+    </NotificationProvider>
+  </Router>
   );
 }
 
