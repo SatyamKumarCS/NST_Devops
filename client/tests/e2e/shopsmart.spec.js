@@ -31,7 +31,7 @@ test.describe('ShopSmart E2E Flow', () => {
 
   test('should show warning when adding to cart as guest', async ({ page }) => {
     await page.goto('/');
-    
+
     // Attempt to add to cart without logging in
     const addToCartBtn = page.getByRole('button', { name: 'Add' }).first();
     await expect(addToCartBtn).toBeVisible();
