@@ -8,7 +8,9 @@
     "dev": "nodemon src/index.js",
     "test": "jest",
     "test:int": "DATABASE_URL=\"file:./test.db\" jest --testPathPattern=tests/integration",
-    "lint": "echo 'No linter configured yet'"
+    "lint": "eslint . --max-warnings 0",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -19,8 +21,14 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.4.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.0",
+    "prettier": "^3.8.1",
     "prisma": "^5.22.0",
     "supertest": "^6.3.4"
   }

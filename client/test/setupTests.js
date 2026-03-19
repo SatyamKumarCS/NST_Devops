@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // More robust localStorage mock to avoid environment crashes
 const store = {};
@@ -13,7 +13,7 @@ const mockLocalStorage = {
     delete store[key];
   }),
   clear: vi.fn(() => {
-    Object.keys(store).forEach(key => delete store[key]);
+    Object.keys(store).forEach((key) => delete store[key]);
   }),
 };
 

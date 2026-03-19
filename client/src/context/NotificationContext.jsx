@@ -11,7 +11,7 @@ export const NotificationProvider = ({ children }) => {
   const showNotification = useCallback((message, type = 'info') => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { id, message, type }]);
-    
+
     // Auto-remove notification after 3 seconds
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));

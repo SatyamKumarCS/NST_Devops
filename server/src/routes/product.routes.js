@@ -1,10 +1,10 @@
 const express = require('express');
-const { 
-    getAllProducts, 
-    getProductById, 
-    createProduct, 
-    updateProduct, 
-    deleteProduct 
+const {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } = require('../controllers/product.controller');
 const { protect } = require('../middleware/auth.middleware');
 

@@ -43,7 +43,7 @@ describe('Checkout Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    
+
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue(mockAuthContext);
     vi.spyOn(CartContextModule, 'useCart').mockReturnValue(mockCartContext);
     vi.spyOn(window, 'alert').mockImplementation(() => {});
@@ -74,14 +74,16 @@ describe('Checkout Component', () => {
 
   it('saves address and shows formatted details', () => {
     renderCheckout();
-    
-    fireEvent.change(screen.getByPlaceholderText(/Street Address/i), { target: { value: 'Main St' } });
+
+    fireEvent.change(screen.getByPlaceholderText(/Street Address/i), {
+      target: { value: 'Main St' },
+    });
     fireEvent.change(screen.getByPlaceholderText(/City/i), { target: { value: 'San Jose' } });
     fireEvent.change(screen.getByPlaceholderText(/State\/Province/i), { target: { value: 'CA' } });
     fireEvent.change(screen.getByPlaceholderText(/Zip Code/i), { target: { value: '95112' } });
-    
+
     fireEvent.click(screen.getByText(/Save Address/i));
-    
+
     expect(screen.queryByPlaceholderText(/Street Address/i)).toBeNull();
     expect(screen.getByText(/SHIP TO/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Main St/i).length).toBeGreaterThan(0);
@@ -90,36 +92,44 @@ describe('Checkout Component', () => {
 
   it('allows editing the address after saving', () => {
     renderCheckout();
-    
-    fireEvent.change(screen.getByPlaceholderText(/Street Address/i), { target: { value: 'Main St' } });
+
+    fireEvent.change(screen.getByPlaceholderText(/Street Address/i), {
+      target: { value: 'Main St' },
+    });
     fireEvent.change(screen.getByPlaceholderText(/City/i), { target: { value: 'San Jose' } });
     fireEvent.change(screen.getByPlaceholderText(/State\/Province/i), { target: { value: 'CA' } });
     fireEvent.change(screen.getByPlaceholderText(/Zip Code/i), { target: { value: '95112' } });
     fireEvent.click(screen.getByText(/Save Address/i));
-    
+
     fireEvent.click(screen.getByText(/Edit Address/i));
     expect(screen.getByPlaceholderText(/Street Address/i)).toBeInTheDocument();
   });
 
   it('calls updateQuantity when quantity buttons are clicked', () => {
     renderCheckout();
-    
+
     // Find buttons by their SVG icons (lucide-plus, lucide-minus)
-    const plusButtons = screen.getAllByRole('button').filter(b => b.querySelector('.lucide-plus'));
+    const plusButtons = screen
+      .getAllByRole('button')
+      .filter((b) => b.querySelector('.lucide-plus'));
     fireEvent.click(plusButtons[0]);
     expect(mockUpdateQuantity).toHaveBeenCalledWith(1, 1);
-    
-    const minusButtons = screen.getAllByRole('button').filter(b => b.querySelector('.lucide-minus'));
+
+    const minusButtons = screen
+      .getAllByRole('button')
+      .filter((b) => b.querySelector('.lucide-minus'));
     fireEvent.click(minusButtons[0]);
     expect(mockUpdateQuantity).toHaveBeenCalledWith(1, -1);
   });
 
   it('calls removeFromCart when trash icon is clicked', () => {
     renderCheckout();
-    
+
     // Find buttons by their SVG icons (lucide-trash-2)
-    const removeButtons = screen.getAllByRole('button').filter(b => b.querySelector('.lucide-trash-2'));
-    
+    const removeButtons = screen
+      .getAllByRole('button')
+      .filter((b) => b.querySelector('.lucide-trash-2'));
+
     if (removeButtons.length > 0) {
       fireEvent.click(removeButtons[0]);
       expect(mockRemoveFromCart).toHaveBeenCalledWith(1);
