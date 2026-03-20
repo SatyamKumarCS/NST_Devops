@@ -152,3 +152,19 @@ jobs:
           tags: |
             ghcr.io/${{ env.REPO_LC }}-server:${{ needs.commit-hash.outputs.commit_hash }}
             ghcr.io/${{ env.REPO_LC }}-server:latest
+  deploy:
+    needs:
+      - build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/nst_devops
+            git fetch origin
+            git reset --hard origin/main
+            bash scripts/deploy.sh
