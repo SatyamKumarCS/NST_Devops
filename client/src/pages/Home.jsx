@@ -37,7 +37,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="container hero">
         <div className="hero-content reveal" style={{ animationDelay: '0.1s' }}>
-          <div className="badge">• NEW COLLECTION 2024</div>
+          <div className="badge">• NEW COLLECTION 2026</div>
           <h1 className="hero-title">
             Future of
             <br />
