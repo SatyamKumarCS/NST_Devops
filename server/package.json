@@ -7,10 +7,13 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "jest",
-    "test:int": "DATABASE_URL=\"file:./test.db\" jest --testPathPattern=tests/integration",
+    "test:int": "jest --testPathPattern=tests/integration",
     "lint": "eslint . --max-warnings 0",
     "format:check": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "db:generate": "DATABASE_URL=postgresql://prisma:prisma@localhost:5432/temp prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "node seed.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -19,6 +22,11 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3"
+  },
+  "jest": {
+    "setupFiles": [
+      "./tests/setup.js"
+    ]
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
